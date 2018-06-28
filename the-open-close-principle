@@ -1,0 +1,119 @@
+Software entities (classes, modules, functions, etc.) should be open for extension but closed for modification.
+软件实体（类，模块，方法等等）应当对扩展开放，对修改关闭，即软件实体应当在不修改的前提下扩展。
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OCP原则</title>
+  <style>
+  div {
+    color: blue;
+  }
+  p {
+    color: green;
+    margin: 0;
+  }
+  span {
+    color: red;
+  }
+  </style>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+</head>
+<body>
+ 
+<div id="questions"></div>
+<p></p>
+<span></span>
+ 
+<script>
+function questionCreator(spec, my) {
+    var that = {};
+
+    my = my || {};
+    my.label = spec.label;
+
+    my.renderInput = function() {
+        throw "not implemented";
+    };
+
+    that.render = function(target) {
+        var questionWrapper = document.createElement('div');
+        questionWrapper.className = 'question';
+
+        var questionLabel = document.createElement('div');
+        questionLabel.className = 'question-label';
+        var label = document.createTextNode(spec.label);
+        questionLabel.appendChild(label);
+
+        var answer = my.renderInput();
+
+        questionWrapper.appendChild(questionLabel);
+        questionWrapper.appendChild(answer);
+        return questionWrapper;
+    };
+
+    return that;
+}
+
+function choiceQuestionCreator(spec) {
+
+    var my = {},
+        that = questionCreator(spec, my);
+
+    my.renderInput = function() {
+        var input = document.createElement('select');
+        var len = spec.choices.length;
+        for (var i = 0; i < len; i++) {
+            var option = document.createElement('option');
+            option.text = spec.choices[i];
+            option.value = spec.choices[i];
+            input.appendChild(option);
+        }
+
+        return input;
+    };
+
+    return that;
+}
+
+function inputQuestionCreator(spec) {
+
+    var my = {},
+        that = questionCreator(spec, my);
+
+    my.renderInput = function() {
+        var input = document.createElement('input');
+        input.type = 'text';
+        return input;
+    };
+
+    return that;
+}
+
+var view = {
+    render: function(target, questions) {
+        for (var i = 0; i < questions.length; i++) {
+            target.appendChild(questions[i].render());
+        }
+    }
+};
+
+var questions = [
+    choiceQuestionCreator({
+    label: 'Have you used tobacco products within the last 30 days?',
+    choices: ['Yes', 'No']
+}),
+    inputQuestionCreator({
+    label: 'What medications are you currently using?'
+})
+    ];
+
+var questionRegion = document.getElementById('questions');
+
+view.render(questionRegion, questions);
+</script>
+ 
+</body>
+</html>
